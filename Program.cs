@@ -1,15 +1,17 @@
 ﻿
 int choice;
-int nextId = 0, age;
+int nextId = 0;
 string name, lastName;
+DateTime dateOfBirth;
 
-Dictionary<int, (string name, string lastName, int age)> members =
-    new Dictionary<int, (string, string, int)>();
+Dictionary<int, (string name, string lastName, DateTime dateOfBirth)> members =
+    new Dictionary<int, (string, string, DateTime)>();
 
 do
 {
     printMain();
     int.TryParse(Console.ReadLine(), out choice);
+
     switch (choice)
     {
         case 0:
@@ -46,7 +48,7 @@ void printMembers()
     System.Console.Write("Unesi:");
 }
 
-(string, string, int) inputNameAndLastNameAndAge()
+(string, string, DateTime) inputNameAndLastNameAndDateOfBirth()
 {
     System.Console.Write("Unesi ime: ");
     name = Console.ReadLine().Trim();
@@ -65,21 +67,21 @@ void printMembers()
         System.Console.Write("Unesi prezime: ");
         lastName = Console.ReadLine().Trim();
     }
-
-    System.Console.Write("Unesi godine: ");
-
-    while (!int.TryParse(Console.ReadLine(), out age) || age <= 0)
+    System.Console.Write("Unesi datum rodenja (dd.MM.yyyy.): ");
+    while (!DateTime.TryParse(Console.ReadLine(), out dateOfBirth))
     {
-        System.Console.WriteLine("Krivo uneseno!");
-        System.Console.Write("Unesi godine: ");
+        System.Console.Write("Krivo! Unesi datum rodenja (dd.MM.yyyy.): ");
     }
 
-    return (name, lastName, age);
+
+
+    return (name, lastName, dateOfBirth);
 }
 
 void clanoviMenu()
 {
     int choice1;
+
     do
     {
         printMembers();
@@ -88,8 +90,9 @@ void clanoviMenu()
         switch (choice1)
         {
             case 1:
-                var (name, lastName, age) = inputNameAndLastNameAndAge();
-                members[nextId] = (name, lastName, age);
+                var (name, lastName, dateOfBirth) = inputNameAndLastNameAndDateOfBirth();
+
+                members[nextId] = (name, lastName, dateOfBirth);
 
                 System.Console.WriteLine($"korisnik {name} {lastName} id:{nextId} uspjesno dodan!");
 
@@ -100,6 +103,7 @@ void clanoviMenu()
 
             case 2:
                 int choice2;
+
                 do
                 {
                     System.Console.WriteLine("Odaberite kako zelite brisati(1,2,0):");
@@ -147,8 +151,9 @@ void clanoviMenu()
 
                 if (members.ContainsKey(updateId))
                 {
-                    var (UpdateName, UpdateLastName, UpdatedAge) = inputNameAndLastNameAndAge();
-                    members[updateId] = (UpdateName, UpdateLastName, UpdatedAge);
+                    var (UpdateName, UpdateLastName, UpdatedDateOfBirth) = inputNameAndLastNameAndDateOfBirth();
+
+                    members[updateId] = (UpdateName, UpdateLastName, UpdatedDateOfBirth);
 
                     System.Console.WriteLine($"Korisnik {UpdateName} {UpdateLastName} uspjesno uredjen!");
                 }
@@ -161,7 +166,8 @@ void clanoviMenu()
             case 4:
                 foreach (var member in members)
                 {
-                    System.Console.WriteLine($"ID:{member.Key} Name:{member.Value.name} Lastname:{member.Value.lastName} Age:{member.Value.age}");
+                    System.Console.WriteLine(
+                        $"ID:{member.Key} Name:{member.Value.name} Lastname:{member.Value.lastName} Date of birth:{member.Value.dateOfBirth.ToString("dd.MM.yyyy.")}");
                 }
                 break;
 
