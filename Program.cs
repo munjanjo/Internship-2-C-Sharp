@@ -99,7 +99,48 @@ void clanoviMenu()
                 break;
 
             case 2:
+                int choice2;
+                do
+                {
+                    System.Console.WriteLine("Odaberite kako zelite brisati(1,2,0):");
+                    System.Console.WriteLine("1) Po ID-ju");
+                    System.Console.WriteLine("2) Po imenu i prezimenu");
+                    System.Console.WriteLine("0) Exit");
+                    System.Console.Write("Unesi:");
+
+                    int.TryParse(Console.ReadLine(), out choice2);
+
+                    switch (choice2)
+                    {
+                        case 1:
+                            System.Console.Write("upisi id:");
+                            int.TryParse(Console.ReadLine(), out int id);
+
+                            if (members.ContainsKey(id))
+                            {
+                                members.Remove(id);
+                                System.Console.WriteLine($"Uspjesno obrisan korisnik s id:{id}");
+                            }
+                            else
+                            {
+                                System.Console.WriteLine("Ne postoji osoba s tim ID-jem!");
+                            }
+                            break;
+
+                        case 2:
+                            break;
+
+                        case 0:
+                            break;
+
+                        default:
+                            System.Console.WriteLine("nepoznat izbor! pokusaj ponovo");
+                            break;
+                    }
+
+                } while (choice2 != 0);
                 break;
+
             case 3:
                 break;
             case 4:
