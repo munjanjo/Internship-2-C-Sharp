@@ -142,11 +142,32 @@ void clanoviMenu()
                 break;
 
             case 3:
+                System.Console.Write("Unesi id cije podatke zelis mjenjati: ");
+                int.TryParse(Console.ReadLine(), out int updateId);
+
+                if (members.ContainsKey(updateId))
+                {
+                    var (UpdateName, UpdateLastName, UpdatedAge) = inputNameAndLastNameAndAge();
+                    members[updateId] = (UpdateName, UpdateLastName, UpdatedAge);
+
+                    System.Console.WriteLine($"Korisnik {UpdateName} {UpdateLastName} uspjesno uredjen!");
+                }
+                else
+                {
+                    System.Console.WriteLine("Ne postoji clan s tim ID-jem!");
+                }
                 break;
+
             case 4:
+                foreach (var member in members)
+                {
+                    System.Console.WriteLine($"ID:{member.Key} Name:{member.Value.name} Lastname:{member.Value.lastName} Age:{member.Value.age}");
+                }
                 break;
+
             case 0:
                 break;
+
             default:
                 System.Console.WriteLine("nepoznat izbor! pokusaj ponovo");
                 break;
