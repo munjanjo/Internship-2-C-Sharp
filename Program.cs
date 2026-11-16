@@ -46,6 +46,37 @@ void printMembers()
     System.Console.Write("Unesi:");
 }
 
+(string, string, int) inputNameAndLastNameAndAge()
+{
+    System.Console.Write("Unesi ime: ");
+    name = Console.ReadLine().Trim();
+
+    while (string.IsNullOrWhiteSpace(name))
+    {
+        System.Console.Write("Unesi ime: ");
+        name = Console.ReadLine().Trim();
+    }
+
+    System.Console.Write("Unesi prezime: ");
+    lastName = Console.ReadLine().Trim();
+
+    while (string.IsNullOrWhiteSpace(lastName))
+    {
+        System.Console.Write("Unesi prezime: ");
+        lastName = Console.ReadLine().Trim();
+    }
+
+    System.Console.Write("Unesi godine: ");
+
+    while (!int.TryParse(Console.ReadLine(), out age) || age <= 0)
+    {
+        System.Console.WriteLine("Krivo uneseno!");
+        System.Console.Write("Unesi godine: ");
+    }
+
+    return (name, lastName, age);
+}
+
 void clanoviMenu()
 {
     int choice1;
@@ -57,7 +88,16 @@ void clanoviMenu()
         switch (choice1)
         {
             case 1:
+                var (name, lastName, age) = inputNameAndLastNameAndAge();
+                members[nextId] = (name, lastName, age);
+
+                System.Console.WriteLine($"korisnik {name} {lastName} id:{nextId} uspjesno dodan!");
+
+                name = string.Empty;
+                lastName = string.Empty;
+                nextId++;
                 break;
+
             case 2:
                 break;
             case 3:
