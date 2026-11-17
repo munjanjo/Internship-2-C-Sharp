@@ -29,6 +29,7 @@ Dictionary<int, (string name, string lastName, DateTime dateOfBirth,
         }
     };
 
+
 do
 {
     printMain();
@@ -85,7 +86,19 @@ void printLoansMenu()
     System.Console.Write("Unesi:");
 }
 
+int CalculateAge(DateTime dateOfBirth)
+{
+    int age = DateTime.Today.Year - dateOfBirth.Year;
+    if (dateOfBirth.Date > DateTime.Today.AddYears(-age))
+        age--;
+    return age;
+}
 
+void PrintMember(int id)
+{
+    var m = members[id];
+    Console.WriteLine($"[{id}] {m.lastName}, {m.name} ({CalculateAge(m.dateOfBirth)}) - broj posudbi: {m.loans.Count}");
+}
 
 (string, string, DateTime) inputNameAndLastNameAndDateOfBirth()
 {
@@ -282,25 +295,16 @@ void memberMenu()
                     switch (choice3)
                     {
                         case 1:
-                            var membersSorted = members.OrderBy(m => m.Value.lastName);
-                            foreach (var m in membersSorted)
-                            {
-                                System.Console.WriteLine($"{m.Key} {m.Value.name} {m.Value.lastName} - broj posudbi: ");
-
-                            }
-
+                            foreach (var m in members.OrderBy(m => m.Value.lastName).ThenBy(m => m.Value.name))
+                                PrintMember(m.Key);
                             break;
                         case 2:
-                            var membersUnderAge = members.Where(m => (m.Value.dateOfBirth.AddYears(18) > DateTime.Now));
-                            foreach (var m in membersUnderAge)
-                            {
-                                System.Console.WriteLine($"{m.Key} {m.Value.name} {m.Value.lastName} - broj posudbi: ");
-                            }
-
+                            foreach (var m in members.Where(m => CalculateAge(m.Value.dateOfBirth) < 18))
+                                PrintMember(m.Key);
                             break;
                         case 3:
-                            System.Console.WriteLine("treba dodati funkcionalnost");
-
+                            foreach (var m in members.Where(m => m.Value.loans.Values.Any(l => l.dateOfReturn == null)))
+                                PrintMember(m.Key);
                             break;
                         case 0:
                             System.Console.WriteLine("Korak unazad!");
