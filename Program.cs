@@ -1,15 +1,32 @@
 ﻿
 int choice;
-int nextId = 4;
+int nextIdMembers = 4;
+int nextIdLoans = 7;
 string name, lastName;
 DateTime dateOfBirth;
 
-Dictionary<int, (string name, string lastName, DateTime dateOfBirth)> members =
-    new Dictionary<int, (string, string, DateTime)>
+Dictionary<int, (string name, string lastName, DateTime dateOfBirth,
+    Dictionary<int, (string title, string author, DateTime dateOfLoan, DateTime? dateOfReturn, int? daysLate, decimal? lateFee)> loans)> members =
+    new Dictionary<int, (string, string, DateTime, Dictionary<int, (string, string, DateTime, DateTime?, int?, decimal?)>)>
     {
-        { 1, ("Ivo", "Munitic", new DateTime(2003, 9, 18)) },
-        { 2, ("Marko", "Maric", new DateTime(2010, 3, 12)) },
-        { 3, ("Ante", "Anic", new DateTime(2000, 7, 25)) }
+        { 1, ("Ivo", "Munitic", new DateTime(2003, 9, 18), new Dictionary<int, (string, string, DateTime, DateTime?, int?, decimal?)>
+            {
+                { 1, ("Na Drini ćuprija", "Ivo Andrić", new DateTime(2026, 9, 1), new DateTime(2026, 9, 30), null, null) },
+                { 2, ("1984", "George Orwell", new DateTime(2026, 11, 5), null, null, null) }
+            })
+        },
+        { 2, ("Marko", "Maric", new DateTime(2010, 3, 12), new Dictionary<int, (string, string, DateTime, DateTime?, int?, decimal?)>
+            {
+                { 3, ("Mali princ", "Antoine de Saint-Exupéry", new DateTime(2026, 10, 3), new DateTime(2026, 10, 20), null, null) },
+                { 4, ("Stranac", "Albert Camus", new DateTime(2026, 10, 10), null, null, null) }
+            })
+        },
+        { 3, ("Ante", "Anic", new DateTime(2000, 7, 25), new Dictionary<int, (string, string, DateTime, DateTime?, int?, decimal?)>
+            {
+                { 5, ("Zločin i kazna", "Fjodor Dostojevski", new DateTime(2026, 9, 15), new DateTime(2026, 10, 20), null, null) },
+                { 6, ("Proces", "Franz Kafka", new DateTime(2026, 11, 2), new DateTime(2026, 11, 12), null, null) }
+            })
+        }
     };
 
 do
@@ -26,6 +43,7 @@ do
             memberMenu();
             break;
         case 2:
+            loanMenu();
             break;
         default:
             System.Console.WriteLine("nepoznat izbor! pokusaj ponovo");
@@ -43,7 +61,7 @@ void printMain()
     System.Console.Write("Unesi:");
 }
 
-void printMembers()
+void printMembersMenu()
 {
     System.Console.WriteLine("Clanovi izbornik(1,2,3,4,0):");
     System.Console.WriteLine("1) Unos novog clana");
@@ -53,6 +71,21 @@ void printMembers()
     System.Console.WriteLine("0) Povratak na glavni izbornik");
     System.Console.Write("Unesi:");
 }
+
+void printLoansMenu()
+{
+    System.Console.WriteLine("Posudbe izbornik(1,2,3,4,0):");
+    System.Console.WriteLine("1) Unos nove posudbe");
+    System.Console.WriteLine("2) Vracanje knjige");
+    System.Console.WriteLine("3) Brisanje posudbe");
+    System.Console.WriteLine("4) Uredivanje postojece posudbe");
+    System.Console.WriteLine("5) Pregled svih posudbi");
+    System.Console.WriteLine("6) Izvjestaji i analize");
+    System.Console.WriteLine("0) Povratak na glavni izbornik");
+    System.Console.Write("Unesi:");
+}
+
+
 
 (string, string, DateTime) inputNameAndLastNameAndDateOfBirth()
 {
@@ -83,14 +116,46 @@ void printMembers()
 
     return (name, lastName, dateOfBirth);
 }
+void loanMenu()
+{
+    int choice4;
+    do
+    {
+        printLoansMenu();
+        int.TryParse(Console.ReadLine(), out choice4);
+        switch (choice4)
+        {
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            case 0:
+                break;
+            default:
+                System.Console.WriteLine("Nepostojeci odabir! Pokusaj ponovo!");
+                break;
+        }
+
+    } while (choice4 != 0);
+}
+
 
 void memberMenu()
+
 {
     int choice1;
 
     do
     {
-        printMembers();
+        printMembersMenu();
         int.TryParse(Console.ReadLine(), out choice1);
 
         switch (choice1)
@@ -98,13 +163,13 @@ void memberMenu()
             case 1:
                 var (name, lastName, dateOfBirth) = inputNameAndLastNameAndDateOfBirth();
 
-                members[nextId] = (name, lastName, dateOfBirth);
+                members[nextIdMembers] = (name, lastName, dateOfBirth, new Dictionary<int, (string, string, DateTime, DateTime?, int?, decimal?)>());
 
-                System.Console.WriteLine($"korisnik {name} {lastName} id:{nextId} uspjesno dodan!");
+                System.Console.WriteLine($"korisnik {name} {lastName} id:{nextIdMembers} uspjesno dodan!");
 
                 name = string.Empty;
                 lastName = string.Empty;
-                nextId++;
+                nextIdMembers++;
                 break;
 
             case 2:
@@ -194,7 +259,7 @@ void memberMenu()
                 {
                     var (UpdateName, UpdateLastName, UpdatedDateOfBirth) = inputNameAndLastNameAndDateOfBirth();
 
-                    members[updateId] = (UpdateName, UpdateLastName, UpdatedDateOfBirth);
+                    members[updateId] = (UpdateName, UpdateLastName, UpdatedDateOfBirth, members[updateId].loans);
 
                     System.Console.WriteLine($"Korisnik {UpdateName} {UpdateLastName} uspjesno uredjen!");
                 }
