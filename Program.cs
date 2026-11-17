@@ -99,6 +99,10 @@ void PrintMember(int id)
     var m = members[id];
     Console.WriteLine($"[{id}] {m.lastName}, {m.name} ({CalculateAge(m.dateOfBirth)}) - broj posudbi: {m.loans.Count}");
 }
+bool HasActiveLoans(int id)
+{
+    return members[id].loans.Values.Any(l => l.dateOfReturn == null);
+}
 
 (string, string, DateTime) inputNameAndLastNameAndDateOfBirth()
 {
@@ -206,6 +210,11 @@ void memberMenu()
 
                             if (members.ContainsKey(id))
                             {
+                                if (HasActiveLoans(id))
+                                {
+                                    Console.WriteLine("Clan ima nevracenu knjigu i ne moze se obrisati!");
+                                    break;
+                                }
                                 members.Remove(id);
                                 System.Console.WriteLine($"Uspjesno obrisan korisnik s id:{id}");
                             }
@@ -242,6 +251,11 @@ void memberMenu()
 
                             if (member.Value != default)
                             {
+                                if (HasActiveLoans(member.Key))
+                                {
+                                    Console.WriteLine("Clan ima nevracenu knjigu i ne moze se obrisati!");
+                                    break;
+                                }
                                 members.Remove(member.Key);
                                 System.Console.WriteLine($"Uspjesno obrisan korisnik {deleteName} {deleteLastName}");
                             }
