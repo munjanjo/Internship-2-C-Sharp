@@ -1,11 +1,16 @@
 ﻿
 int choice;
-int nextId = 0;
+int nextId = 4;
 string name, lastName;
 DateTime dateOfBirth;
 
 Dictionary<int, (string name, string lastName, DateTime dateOfBirth)> members =
-    new Dictionary<int, (string, string, DateTime)>();
+    new Dictionary<int, (string, string, DateTime)>
+    {
+        { 1, ("Ivo", "Munitic", new DateTime(2003, 9, 18)) },
+        { 2, ("Marko", "Maric", new DateTime(2010, 3, 12)) },
+        { 3, ("Ante", "Anic", new DateTime(2000, 7, 25)) }
+    };
 
 do
 {
@@ -15,9 +20,10 @@ do
     switch (choice)
     {
         case 0:
+            System.Console.WriteLine("Izlaz iz aplikacije!");
             break;
         case 1:
-            clanoviMenu();
+            memberMenu();
             break;
         case 2:
             break;
@@ -78,7 +84,7 @@ void printMembers()
     return (name, lastName, dateOfBirth);
 }
 
-void clanoviMenu()
+void memberMenu()
 {
     int choice1;
 
@@ -135,6 +141,7 @@ void clanoviMenu()
                             break;
 
                         case 0:
+                            System.Console.WriteLine("Korak unazad!");
                             break;
 
                         default:
@@ -164,14 +171,50 @@ void clanoviMenu()
                 break;
 
             case 4:
-                foreach (var member in members)
+                int choice3;
+                System.Console.WriteLine("Kako zelis sortirano(1,2,3,0):");
+                do
                 {
-                    System.Console.WriteLine(
-                        $"ID:{member.Key} Name:{member.Value.name} Lastname:{member.Value.lastName} Date of birth:{member.Value.dateOfBirth.ToString("dd.MM.yyyy.")}");
-                }
+                    System.Console.WriteLine("1) Abecedno");
+                    System.Console.WriteLine("2) Mladji od 18 godina");
+                    System.Console.WriteLine("3) Svi sa nevracenom knjigom");
+                    System.Console.WriteLine("0) Korak nazad");
+                    int.TryParse(Console.ReadLine(), out choice3);
+                    switch (choice3)
+                    {
+                        case 1:
+                            var membersSorted = members.OrderBy(m => m.Value.lastName);
+                            foreach (var m in membersSorted)
+                            {
+                                System.Console.WriteLine($"{m.Key} {m.Value.name} {m.Value.lastName} - broj posudbi: ");
+
+                            }
+
+                            break;
+                        case 2:
+                            var membersUnderAge = members.Where(m => (m.Value.dateOfBirth.AddYears(18) > DateTime.Now));
+                            foreach (var m in membersUnderAge)
+                            {
+                                System.Console.WriteLine($"{m.Key} {m.Value.name} {m.Value.lastName} - broj posudbi: ");
+                            }
+
+                            break;
+                        case 3:
+                            System.Console.WriteLine("treba dodati funkcionalnost");
+
+                            break;
+                        case 0:
+                            System.Console.WriteLine("Korak unazad!");
+                            break;
+                        default:
+                            System.Console.WriteLine("nepoznat izbor! pokusaj ponovo");
+                            break;
+                    }
+                } while (choice3 != 0);
                 break;
 
             case 0:
+                System.Console.WriteLine("Korak unazad!");
                 break;
 
             default:
