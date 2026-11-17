@@ -138,6 +138,40 @@ void memberMenu()
                             break;
 
                         case 2:
+                            System.Console.Write("Unesi ime i prezime osobe koju zelis izbrisati: ");
+                            string deleteUser = Console.ReadLine().Trim();
+
+                            while (string.IsNullOrWhiteSpace(deleteUser))
+                            {
+                                System.Console.Write("Unos ne smije biti prazan. Pokusaj ponovo: ");
+                                deleteUser = Console.ReadLine().Trim();
+                            }
+
+                            string[] nameAndLastName = deleteUser.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                            if (nameAndLastName.Length != 2)
+                            {
+                                System.Console.WriteLine("Unesi ime i prezime!");
+                                break;
+                            }
+
+                            string deleteName = nameAndLastName[0];
+                            string deleteLastName = nameAndLastName[1];
+
+                            var member = members.FirstOrDefault(m =>
+                                m.Value.name.Equals(deleteName, StringComparison.OrdinalIgnoreCase) &&
+                                m.Value.lastName.Equals(deleteLastName, StringComparison.OrdinalIgnoreCase));
+
+                            if (member.Value != default)
+                            {
+                                members.Remove(member.Key);
+                                System.Console.WriteLine($"Uspjesno obrisan korisnik {deleteName} {deleteLastName}");
+                            }
+                            else
+                            {
+                                System.Console.WriteLine("Korisnik nije pronaden!");
+                            }
+
                             break;
 
                         case 0:
