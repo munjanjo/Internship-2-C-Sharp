@@ -343,6 +343,7 @@ void RunLoansMenu()
                 ReturnLoan();
                 break;
             case 3:
+                DeleteLoan();
                 break;
             case 4:
                 break;
@@ -359,6 +360,117 @@ void RunLoansMenu()
         }
 
     } while (loanChoice != 0);
+}
+void DeleteLoan()
+{
+    int deleteLoanChoice;
+    do
+    {
+        System.Console.WriteLine("Kako zelite brisati?(0,1,2)");
+        System.Console.WriteLine("1)Po ID-u");
+        System.Console.WriteLine("2)Sve vracene posudbe odabranog clana");
+        System.Console.WriteLine("3)Svih posudbi sa zakasninom vecom od unesenog iznosa");
+        System.Console.WriteLine("0)Korak unazad");
+        int.TryParse(Console.ReadLine(), out deleteLoanChoice);
+        switch (deleteLoanChoice)
+        {
+            case 1:
+                Console.Write("Unesi id posudbe: ");
+                int.TryParse(Console.ReadLine(), out int loanId);
+                int memberId = FindMemberIdByLoanId(loanId);
+
+                if (memberId == 0)
+                {
+                    Console.WriteLine("Ne postoji posudba s tim ID-jem!");
+                    break;
+                }
+
+                PrintLoan(loanId, members[memberId].loans[loanId]);
+
+                if (!IsConfirmed("Zelite li zaista obrisati ovu posudbu?"))
+                {
+                    Console.WriteLine("Brisanje otkazano.");
+                    break;
+                }
+
+                members[memberId].loans.Remove(loanId);
+                Console.WriteLine("Posudba uspjesno obrisana!");
+                break;
+            case 2:
+                int selectedMemberId = SelectMember();
+                if (selectedMemberId == 0)
+                {
+                    Console.WriteLine("Clan nije pronaden!");
+                    break;
+                }
+
+                var returnedLoanIds = members[selectedMemberId].loans
+                    .Where(l => l.Value.dateOfReturn != null)
+                    .Select(l => l.Key)
+                    .ToList();
+
+                if (returnedLoanIds.Count == 0)
+                {
+                    Console.WriteLine("Clan nema vracenih posudbi.");
+                    break;
+                }
+
+                foreach (var id in returnedLoanIds)
+                    PrintLoan(id, members[selectedMemberId].loans[id]);
+
+                var member = members[selectedMemberId];
+                if (!IsConfirmed($"Zelis li izbrisati {returnedLoanIds.Count} vracenih posudbi od {member.name} {member.lastName}?"))
+                {
+                    Console.WriteLine("Brisanje otkazano.");
+                    break;
+                }
+
+                foreach (var id in returnedLoanIds)
+                    members[selectedMemberId].loans.Remove(id);
+
+                Console.WriteLine($"Uspjesno obrisano {returnedLoanIds.Count} posudbi!");
+                break;
+            case 3:
+                Console.Write("Unesi iznos zakasnine (npr. 3.50): ");
+                decimal minLateFee;
+                while (!decimal.TryParse((Console.ReadLine() ?? "").Replace(',', '.'), NumberStyles.Number, CultureInfo.InvariantCulture, out minLateFee) || minLateFee < 0)
+                {
+                    Console.Write("Neispravan iznos! Unesi pozitivan broj (npr. 3.50): ");
+                }
+
+                var loansToDelete = members
+                    .SelectMany(m => m.Value.loans
+                        .Where(l => l.Value.lateFee > minLateFee)
+                        .Select(l => (memberId: m.Key, loanId: l.Key)))
+                    .ToList();
+
+                if (loansToDelete.Count == 0)
+                {
+                    Console.WriteLine($"Nema posudbi sa zakasninom vecom od {minLateFee:0.00} €.");
+                    break;
+                }
+
+                foreach (var loan in loansToDelete)
+                    PrintLoan(loan.loanId, members[loan.memberId].loans[loan.loanId]);
+
+                if (!IsConfirmed($"Zelis li izbrisati {loansToDelete.Count} posudbi sa zakasninom vecom od {minLateFee:0.00} €?"))
+                {
+                    Console.WriteLine("Brisanje otkazano.");
+                    break;
+                }
+
+                foreach (var loan in loansToDelete)
+                    members[loan.memberId].loans.Remove(loan.loanId);
+
+                Console.WriteLine($"Uspjesno obrisano {loansToDelete.Count} posudbi!");
+                break;
+            case 0:
+                break;
+            default:
+                System.Console.WriteLine("ne postoji taj izbor! pokusaj ponovo!");
+                break;
+        }
+    } while (deleteLoanChoice != 0);
 }
 
 void RunMembersMenu()
