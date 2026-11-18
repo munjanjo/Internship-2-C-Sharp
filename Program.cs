@@ -346,6 +346,7 @@ void RunLoansMenu()
                 DeleteLoan();
                 break;
             case 4:
+                EditLoan();
                 break;
             case 5:
                 PrintAllLoans();
@@ -360,6 +361,63 @@ void RunLoansMenu()
         }
 
     } while (loanChoice != 0);
+}
+DateTime? ReadReturnDate(DateTime dateOfLoan)
+{
+    while (true)
+    {
+        Console.Write("Unesite datum vracanja (YYYY-MM-DD, prazno ako nije vracena): ");
+        string input = (Console.ReadLine() ?? "").Trim();
+
+        if (string.IsNullOrWhiteSpace(input))
+            return null;
+
+        if (!DateTime.TryParseExact(input, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+            Console.WriteLine("Neispravan format datuma!");
+        else if (date < dateOfLoan || date > DateTime.Today)
+            Console.WriteLine("Datum vracanja ne moze biti prije datuma posudbe ni u buducnosti!");
+        else
+            return date;
+    }
+}
+
+void EditLoan()
+{
+    Console.Write("Unesite id posudbe: ");
+    int.TryParse(Console.ReadLine(), out int loanId);
+
+    int memberId = FindMemberIdByLoanId(loanId);
+    if (memberId == 0)
+    {
+        Console.WriteLine("Ne postoji posudba s tim id-jem!");
+        return;
+    }
+
+    PrintLoan(loanId, members[memberId].loans[loanId]);
+
+    if (!IsConfirmed("Zelite li zaista urediti ovu posudbu?"))
+    {
+        Console.WriteLine("Uredivanje otkazano.");
+        return;
+    }
+
+    string title = ReadText("Unesite naslov: ");
+    string author = ReadText("Unesite autora: ");
+
+    DateTime dateOfLoan = ReadDate("Unesite datum posudbe (YYYY-MM-DD): ");
+    while (dateOfLoan > DateTime.Today)
+    {
+        Console.WriteLine("Datum posudbe ne moze biti u buducnosti!");
+        dateOfLoan = ReadDate("Unesite datum posudbe (YYYY-MM-DD): ");
+    }
+
+    DateTime? dateOfReturn = ReadReturnDate(dateOfLoan);
+
+    members[memberId].loans[loanId] = (title, author, dateOfLoan, dateOfReturn, null, null);
+    UpdateLateFee(memberId, loanId);
+
+    Console.WriteLine("Posudba uspjesno uredena!");
+    PrintLoan(loanId, members[memberId].loans[loanId]);
 }
 void DeleteLoan()
 {
