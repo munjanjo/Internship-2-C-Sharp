@@ -414,6 +414,47 @@ void RunLoanAnalyticsMenu()
                 double averageDays = (double)totalDays / returnedLoans.Count;
                 Console.WriteLine($"Prosjecno trajanje posudbe: {averageDays:0.00} dana");
                 break;
+            case 4:
+                if (member.loans.Count == 0)
+                {
+                    Console.WriteLine("Clan nema posudbi.");
+                    break;
+                }
+
+                var mostLateLoan = member.loans.MaxBy(l => l.Value.daysLate);
+                if (mostLateLoan.Value.daysLate == 0)
+                {
+                    Console.WriteLine("Clan nema nijednu posudbu s kasnjenjem.");
+                    break;
+                }
+
+                Console.WriteLine("Posudba s najvecim kasnjenjem:");
+                PrintLoan(mostLateLoan.Key, mostLateLoan.Value);
+                break;
+            case 5:
+                DateTime dateFrom = ReadDate("Unesite datum od (YYYY-MM-DD): ");
+                DateTime dateTo = ReadDate("Unesite datum do (YYYY-MM-DD): ");
+
+                while (dateTo < dateFrom)
+                {
+                    Console.WriteLine("Datum do ne moze biti prije datuma od!");
+                    dateTo = ReadDate("Unesite datum do (YYYY-MM-DD): ");
+                }
+
+                var loansInRange = member.loans
+                    .Where(l => l.Value.dateOfLoan >= dateFrom && l.Value.dateOfLoan <= dateTo)
+                    .OrderBy(l => l.Value.dateOfLoan)
+                    .ToList();
+
+                if (loansInRange.Count == 0)
+                {
+                    Console.WriteLine("Nema posudbi u tom rasponu datuma.");
+                    break;
+                }
+
+                foreach (var loan in loansInRange)
+                    PrintLoan(loan.Key, loan.Value);
+                break;
             case 0:
                 break;
             default:
@@ -620,7 +661,7 @@ void RunPrintAllLoansMenu()
                 PrintLoansGroupedByMonth();
                 break;
             case 0:
-                System.Console.WriteLine("Korak unazad.");
+                Console.WriteLine("Korak unazad.");
                 break;
             default:
                 Console.WriteLine("Nepostojeci izbor, pokusaj opet!");
@@ -635,12 +676,17 @@ void DeleteLoan()
     int deleteLoanChoice;
     do
     {
-        System.Console.WriteLine("Kako zelite brisati?(0,1,2)");
-        System.Console.WriteLine("1)Po ID-u");
-        System.Console.WriteLine("2)Sve vracene posudbe odabranog clana");
-        System.Console.WriteLine("3)Svih posudbi sa zakasninom vecom od unesenog iznosa");
-        System.Console.WriteLine("0)Korak unazad");
-        int.TryParse(Console.ReadLine(), out deleteLoanChoice);
+        Console.WriteLine();
+        Console.WriteLine("Kako zelite brisati?(1,2,3,0):");
+        Console.WriteLine("1) Po ID-u");
+        Console.WriteLine("2) Sve vracene posudbe odabranog clana");
+        Console.WriteLine("3) Sve posudbe sa zakasninom vecom od unesenog iznosa");
+        Console.WriteLine("0) Korak unazad");
+        Console.Write("Unesi:");
+
+        if (!int.TryParse(Console.ReadLine(), out deleteLoanChoice))
+            deleteLoanChoice = -1;
+
         switch (deleteLoanChoice)
         {
             case 1:
@@ -736,7 +782,7 @@ void DeleteLoan()
             case 0:
                 break;
             default:
-                System.Console.WriteLine("ne postoji taj izbor! pokusaj ponovo!");
+                Console.WriteLine("Nepostojeci izbor, pokusaj ponovo!");
                 break;
         }
     } while (deleteLoanChoice != 0);
