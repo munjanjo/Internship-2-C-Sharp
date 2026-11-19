@@ -52,6 +52,9 @@ do
         case 2:
             RunLoansMenu();
             break;
+        case 3:
+            RunBonusMenu();
+            break;
         default:
             Console.WriteLine("nepoznat izbor! pokusaj ponovo");
             break;
@@ -62,9 +65,10 @@ do
 void PrintMainMenu()
 {
     Console.WriteLine();
-    Console.WriteLine("Glavni izbornik(1,2,0):");
+    Console.WriteLine("Glavni izbornik(1,2,3,0):");
     Console.WriteLine("1) Clanovi");
     Console.WriteLine("2) Posudbe");
+    Console.WriteLine("3) Bonus");
     Console.WriteLine("0) Exit");
     Console.Write("Unesi:");
 }
@@ -94,7 +98,88 @@ void PrintLoansMenu()
     Console.WriteLine("0) Povratak na glavni izbornik");
     Console.Write("Unesi:");
 }
+void RunBonusMenu()
+{
+    int bonusChoice;
+    do
+    {
+        System.Console.WriteLine("1) Član s najvećom ukupnom zakasninom");
+        System.Console.WriteLine("2) Član s najviše posudbi");
+        System.Console.WriteLine("3) Najposuđivaniji naslov");
+        System.Console.WriteLine("4) Ukupan iznos zakasnina svih članova");
+        System.Console.WriteLine("0) Korak nazad");
+        Console.Write("Unesi:");
+        if (!int.TryParse(Console.ReadLine(), out bonusChoice))
+        {
+            bonusChoice = -1;
+        }
+        switch (bonusChoice)
+        {
+            case 1:
+                if (members.Count == 0)
+                {
+                    Console.WriteLine("Nema clanova.");
+                    break;
+                }
 
+                var memberWithMaxFee = members.MaxBy(m => m.Value.loans.Values.Sum(l => l.lateFee ?? 0));
+                decimal maxTotalFee = memberWithMaxFee.Value.loans.Values.Sum(l => l.lateFee ?? 0);
+
+                Console.WriteLine($"Clan s najvecom ukupnom zakasninom: {memberWithMaxFee.Value.name} {memberWithMaxFee.Value.lastName} - {maxTotalFee:0.00} €");
+                WaitForKeyPress();
+                break;
+            case 2:
+                if (members.Count == 0)
+                {
+                    Console.WriteLine("Nema clanova.");
+                    break;
+                }
+                var memberWithMaxLoans = members.MaxBy(m => m.Value.loans.Count());
+                int loanNumber = memberWithMaxLoans.Value.loans.Count();
+                Console.WriteLine($"Clan s najvise posudba je: {memberWithMaxLoans.Value.name} {memberWithMaxLoans.Value.lastName} - {loanNumber} posudbi");
+                WaitForKeyPress();
+                break;
+            case 3:
+                var allLoans = members.SelectMany(m => m.Value.loans.Values).ToList();
+
+                if (allLoans.Count == 0)
+                {
+                    Console.WriteLine("Nema posudbi.");
+                    break;
+                }
+
+                var titleGroups = allLoans
+                    .GroupBy(l => l.title, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                int maxCount = titleGroups.Max(g => g.Count());
+
+                Console.WriteLine($"Najposudivaniji naslov ({maxCount}x):");
+                foreach (var group in titleGroups.Where(g => g.Count() == maxCount))
+                    Console.WriteLine($"- {group.Key}");
+                break;
+            case 4:
+                allLoans = members.SelectMany(m => m.Value.loans.Values).ToList();
+
+                if (allLoans.Count == 0)
+                {
+                    Console.WriteLine("Nema posudbi.");
+                    break;
+                }
+                decimal totalFee = allLoans.Sum(l => l.lateFee ?? 0);
+                Console.WriteLine($"Totalna zakasnina svih clanova je {totalFee}");
+                WaitForKeyPress();
+                break;
+            case 0:
+                break;
+            default:
+                System.Console.WriteLine("Nepostojeci izbor, pokusaj ponovo");
+                break;
+
+
+        }
+    } while (bonusChoice != 0);
+}
 string ReadText(string prompt)
 {
     Console.Write(prompt);
