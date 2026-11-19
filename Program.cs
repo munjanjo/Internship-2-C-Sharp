@@ -122,6 +122,13 @@ DateTime ReadDate(string prompt)
     return date;
 }
 
+void WaitForKeyPress()
+{
+    Console.WriteLine();
+    Console.WriteLine("Pritisnite bilo koju tipku za nastavak...");
+    Console.ReadKey(true);
+}
+
 bool IsConfirmed(string question)
 {
     Console.Write($"{question} (d/n): ");
@@ -361,6 +368,9 @@ void RunLoansMenu()
                 break;
         }
 
+        if (loanChoice == 1 || loanChoice == 2 || loanChoice == 4)
+            WaitForKeyPress();
+
     } while (loanChoice != 0);
 }
 void RunLoanAnalyticsMenu()
@@ -461,6 +471,9 @@ void RunLoanAnalyticsMenu()
                 Console.WriteLine("Nepostojeci izbor, pokusaj ponovo!");
                 break;
         }
+
+        if (analyticsChoice != 0)
+            WaitForKeyPress();
 
     } while (analyticsChoice != 0);
 }
@@ -668,6 +681,9 @@ void RunPrintAllLoansMenu()
                 break;
         }
 
+        if (printChoice != 0)
+            WaitForKeyPress();
+
     } while (printChoice != 0);
 }
 
@@ -785,6 +801,10 @@ void DeleteLoan()
                 Console.WriteLine("Nepostojeci izbor, pokusaj ponovo!");
                 break;
         }
+
+        if (deleteLoanChoice != 0)
+            WaitForKeyPress();
+
     } while (deleteLoanChoice != 0);
 }
 
@@ -857,6 +877,9 @@ void RunMembersMenu()
                             break;
                     }
 
+                    if (deleteChoice != 0)
+                        WaitForKeyPress();
+
                 } while (deleteChoice != 0);
                 break;
 
@@ -917,6 +940,10 @@ void RunMembersMenu()
                             Console.WriteLine("nepoznat izbor! pokusaj ponovo");
                             break;
                     }
+
+                    if (printChoice != 0)
+                        WaitForKeyPress();
+
                 } while (printChoice != 0);
                 break;
 
@@ -928,6 +955,9 @@ void RunMembersMenu()
                 Console.WriteLine("nepoznat izbor! pokusaj ponovo");
                 break;
         }
+
+        if (memberChoice == 1 || memberChoice == 3)
+            WaitForKeyPress();
 
     } while (memberChoice != 0);
 }
