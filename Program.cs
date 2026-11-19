@@ -349,7 +349,7 @@ void RunLoansMenu()
                 EditLoan();
                 break;
             case 5:
-                PrintAllLoans();
+                RunPrintAllLoansMenu();
                 break;
             case 6:
                 break;
@@ -419,6 +419,156 @@ void EditLoan()
     Console.WriteLine("Posudba uspjesno uredena!");
     PrintLoan(loanId, members[memberId].loans[loanId]);
 }
+bool IsAscendingOrder()
+{
+    Console.WriteLine("1) Uzlazno");
+    Console.WriteLine("2) Silazno");
+    Console.Write("Unesi:");
+
+    string input = (Console.ReadLine() ?? "").Trim();
+    while (input != "1" && input != "2")
+    {
+        Console.Write("Upisi 1 ili 2: ");
+        input = (Console.ReadLine() ?? "").Trim();
+    }
+
+    return input == "1";
+}
+
+void PrintLoansSortedByDate()
+{
+    var allLoans = members.SelectMany(m => m.Value.loans);
+
+    var sortedLoans = IsAscendingOrder()
+        ? allLoans.OrderBy(l => l.Value.dateOfLoan)
+        : allLoans.OrderByDescending(l => l.Value.dateOfLoan);
+
+    foreach (var loan in sortedLoans)
+        PrintLoan(loan.Key, loan.Value);
+}
+
+void PrintLoansSortedByLateFee()
+{
+    var allLoans = members.SelectMany(m => m.Value.loans);
+
+    var sortedLoans = IsAscendingOrder()
+        ? allLoans.OrderBy(l => l.Value.lateFee)
+        : allLoans.OrderByDescending(l => l.Value.lateFee);
+
+    foreach (var loan in sortedLoans)
+        PrintLoan(loan.Key, loan.Value);
+}
+
+void PrintActiveLoans()
+{
+    var activeLoans = members
+        .SelectMany(m => m.Value.loans
+            .Where(l => l.Value.dateOfReturn == null)
+            .Select(l => (member: m.Value, loanId: l.Key, loan: l.Value)))
+        .OrderBy(l => l.loanId)
+        .ToList();
+
+    if (activeLoans.Count == 0)
+    {
+        Console.WriteLine("Nema nevracenih posudbi.");
+        return;
+    }
+
+    foreach (var item in activeLoans)
+    {
+        Console.Write($"{item.member.name} {item.member.lastName}: ");
+        PrintLoan(item.loanId, item.loan);
+    }
+}
+
+void SearchLoans()
+{
+    string searchText = ReadText("Unesi dio naslova ili autora: ");
+
+    var foundLoans = members
+        .SelectMany(m => m.Value.loans)
+        .Where(l => l.Value.title.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    l.Value.author.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+        .OrderBy(l => l.Key)
+        .ToList();
+
+    if (foundLoans.Count == 0)
+    {
+        Console.WriteLine("Nije pronadena nijedna posudba.");
+        return;
+    }
+
+    foreach (var loan in foundLoans)
+        PrintLoan(loan.Key, loan.Value);
+}
+
+void PrintLoansGroupedByMonth()
+{
+    var loansByMonth = members
+        .SelectMany(m => m.Value.loans)
+        .GroupBy(l => l.Value.dateOfLoan.ToString("yyyy-MM"))
+        .OrderBy(g => g.Key);
+
+    foreach (var month in loansByMonth)
+    {
+        Console.WriteLine();
+        Console.WriteLine($"{month.Key} - broj posudbi: {month.Count()}, ukupna zakasnina: {month.Sum(l => l.Value.lateFee):0.00} €");
+
+        foreach (var loan in month.OrderBy(l => l.Value.dateOfLoan))
+            PrintLoan(loan.Key, loan.Value);
+    }
+}
+
+void RunPrintAllLoansMenu()
+{
+    int printChoice;
+    do
+    {
+        Console.WriteLine();
+        Console.WriteLine("Odaberi pregled posudbi(1,2,3,4,5,6,0):");
+        Console.WriteLine("1) Redom");
+        Console.WriteLine("2) Sortirano po datumu posudbe");
+        Console.WriteLine("3) Sortirano po zakasnini");
+        Console.WriteLine("4) Sve nevracene posudbe");
+        Console.WriteLine("5) Pretraga po dijelu naslova ili autora");
+        Console.WriteLine("6) Grupirano po mjesecu posudbe");
+        Console.WriteLine("0) Korak unazad");
+        Console.Write("Unesi:");
+
+        if (!int.TryParse(Console.ReadLine(), out printChoice))
+            printChoice = -1;
+
+        switch (printChoice)
+        {
+            case 1:
+                PrintAllLoans();
+                break;
+            case 2:
+                PrintLoansSortedByDate();
+                break;
+            case 3:
+                PrintLoansSortedByLateFee();
+                break;
+            case 4:
+                PrintActiveLoans();
+                break;
+            case 5:
+                SearchLoans();
+                break;
+            case 6:
+                PrintLoansGroupedByMonth();
+                break;
+            case 0:
+                System.Console.WriteLine("Korak unazad.");
+                break;
+            default:
+                Console.WriteLine("Nepostojeci izbor, pokusaj opet!");
+                break;
+        }
+
+    } while (printChoice != 0);
+}
+
 void DeleteLoan()
 {
     int deleteLoanChoice;
