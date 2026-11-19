@@ -352,6 +352,7 @@ void RunLoansMenu()
                 RunPrintAllLoansMenu();
                 break;
             case 6:
+                RunLoanAnalyticsMenu();
                 break;
             case 0:
                 break;
@@ -361,6 +362,66 @@ void RunLoansMenu()
         }
 
     } while (loanChoice != 0);
+}
+void RunLoanAnalyticsMenu()
+{
+    int memberId = SelectMember();
+    if (memberId == 0)
+    {
+        Console.WriteLine("Clan nije pronaden!");
+        return;
+    }
+
+    var member = members[memberId];
+    int analyticsChoice;
+    do
+    {
+        Console.WriteLine();
+        Console.WriteLine($"Izvjestaji za {member.name} {member.lastName} (1,2,3,4,5,0):");
+        Console.WriteLine("1) Ukupan broj posudbi i broj nevracenih");
+        Console.WriteLine("2) Ukupna zakasnina");
+        Console.WriteLine("3) Prosjecno trajanje posudbe");
+        Console.WriteLine("4) Posudba s najvecim kasnjenjem");
+        Console.WriteLine("5) Posudbe u rasponu datuma od - do");
+        Console.WriteLine("0) Korak unazad");
+        Console.Write("Unesi:");
+
+        if (!int.TryParse(Console.ReadLine(), out analyticsChoice))
+            analyticsChoice = -1;
+
+        switch (analyticsChoice)
+        {
+            case 1:
+                int activeLoansCount = member.loans.Values.Count(l => l.dateOfReturn == null);
+                Console.WriteLine($"Ukupan broj posudbi: {member.loans.Count}, nevracenih: {activeLoansCount}");
+                break;
+            case 2:
+                decimal totalLateFee = member.loans.Values.Sum(l => l.lateFee ?? 0);
+                Console.WriteLine($"Ukupna zakasnina: {totalLateFee:0.00} €");
+                break;
+            case 3:
+                var returnedLoans = member.loans.Values
+                    .Where(l => l.dateOfReturn != null)
+                    .ToList();
+
+                if (returnedLoans.Count == 0)
+                {
+                    Console.WriteLine("Clan nema vracenih posudbi, prosjek se ne moze izracunati.");
+                    break;
+                }
+
+                int totalDays = returnedLoans.Sum(l => (l.dateOfReturn!.Value - l.dateOfLoan).Days);
+                double averageDays = (double)totalDays / returnedLoans.Count;
+                Console.WriteLine($"Prosjecno trajanje posudbe: {averageDays:0.00} dana");
+                break;
+            case 0:
+                break;
+            default:
+                Console.WriteLine("Nepostojeci izbor, pokusaj ponovo!");
+                break;
+        }
+
+    } while (analyticsChoice != 0);
 }
 DateTime? ReadReturnDate(DateTime dateOfLoan)
 {
